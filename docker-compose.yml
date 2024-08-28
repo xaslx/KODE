@@ -1,0 +1,22 @@
+services:
+  db:
+    image: postgres:16
+    container_name: kode_db
+    env_file:
+      - .env
+    ports:
+      - 5432:5432
+
+  kode:
+    build:
+      context: .  
+    image: kode_app
+    container_name: kode_app
+    env_file:
+      - .env
+    depends_on:
+      - db
+    command: >
+      sh -c "alembic upgrade head && gunicorn main:app --workers 1 --worker-class uvicorn.workers.UvicornWorker --bind=0.0.0.0:8000"
+    ports:
+      - 7777:8000
